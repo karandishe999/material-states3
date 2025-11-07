@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حالات ماده - مشاهده حالات فیزیکی ماده</title>
+    <style>
+        /* CSS پایه */
+        body {
+            font-family: 'B Nazanin', Tahoma, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            padding: 10px;
+            margin: 0;
+        }
+        h1 { color: #333; font-size: 22px; margin-bottom: 0; }
+        p { margin: 5px 0 15px; font-size: 14px; }
+
+        /* ------------------------------------- */
+        /* بخش ناوبری (Buttons) و Container */
+        /* ------------------------------------- */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3px; 
+            margin-bottom: 15px;
+            flex-wrap: wrap; 
+            padding: 0 5px;
+        }
+        .nav-buttons button {
+            padding: 5px 10px; 
+            font-size: 13px; 
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 0; 
+            min-width: 70px; 
+        }
+        .nav-buttons button.active {
+            background-color: #0056b3;
+            box-shadow: 0 0 8px rgba(0, 86, 179, 0.5);
+            font-weight: bold;
+        }
+
+        .container {
+            display: block; 
+            max-width: 400px; 
+            margin: 0 auto; 
+            padding: 0 10px;
+        }
+        .state-box {
+            width: 100%; 
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: none; 
+            margin-bottom: 10px;
+        }
+        .state-box.active {
+            display: block;
+        }
+        
+        .state-box h2 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        /* طراحی ظرف‌ها */
+        .particles {
+            height: 110px; 
+            width: 90%; 
+            border: 3px solid #666; 
+            margin: 10px auto; 
+            position: relative;
+            overflow: hidden;
+            display: block; 
+        }
+
+        /* ظرف مایع: عرض کوچک‌تر (عرض مناسب برای ۶ ذره) */
+        #liquid-particles {
+            width: 75px; 
+            height: 110px;
+        }
+        
+        /* ذرات (برای ۱۲ ذره تنظیم شده) */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transition: all 0.5s linear;
+        }
+
+        /* لیست ویژگی‌ها */
+        .properties {
+            text-align: right;
+            list-style: none;
+            padding-right: 0;
+            font-size: 13px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        
+        /* ------------------------------------- */
+        /* انیمیشن‌های جنبش ذرات CSS         */
+        /* ------------------------------------- */
+        @keyframes solidVibration {
+            0% { transform: translate(0.3px, 0.3px); } 
+            50% { transform: translate(-0.3px, -0.3px); }
+            100% { transform: translate(0.3px, 0.3px); }
+        }
+        #solid-particles .particle {
+            background-color: #28a745;
+            animation: solidVibration 0.1s infinite alternate; 
+        }
+        
+        @keyframes liquidFlow {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(3px, 0) rotate(0deg); } 
+            66% { transform: translate(-2px, 0) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        #liquid-particles .particle {
+            background-color: #00bcd4;
+            animation: liquidFlow 4s infinite alternate; 
+            animation-delay: calc(var(--i) * 0.1s); 
+        }
+        
+        #gas-particles .particle {
+            background-color: #ff9800;
+            transition: all 1s ease-out; 
+        }
+
+        /* ------------------------------------- */
+        /* --- موقعیت‌های اولیه ۱۲ ذره --- */
+        /* ------------------------------------- */
+        
+        /* ۱. جامد (۴*۳ منظم و مماس در کف ظرف بزرگ) - همان 5px برای نمایش لرزش */
+        #solid-particles .p1 { bottom: 5px; left: 10px; } #solid-particles .p2 { bottom: 5px; left: 20px; } #solid-particles .p3 { bottom: 5px; left: 30px; } #solid-particles .p4 { bottom: 5px; left: 40px; } 
+        #solid-particles .p5 { bottom: 15px; left: 10px; } #solid-particles .p6 { bottom: 15px; left: 20px; } #solid-particles .p7 { bottom: 15px; left: 30px; } #solid-particles .p8 { bottom: 15px; left: 40px; } 
+        #solid-particles .p9 { bottom: 25px; left: 10px; } #solid-particles .p10 { bottom: 25px; left: 20px; } #solid-particles .p11 { bottom: 25px; left: 30px; } #solid-particles .p12 { bottom: 25px; left: 40px; } 
+
+        /* ۲. مایع (۲*۶ نامنظم و متراکم در عرض کوچک) - کاهش Bottom به 2px و 12px برای نزدیک شدن به کف */
+        #liquid-particles .p1 { bottom: 2px; left: 5px; } #liquid-particles .p2 { bottom: 2px; left: 15px; } #liquid-particles .p3 { bottom: 2px; left: 25px; } #liquid-particles .p4 { bottom: 2px; left: 35px; } 
+        #liquid-particles .p5 { bottom: 2px; left: 45px; } #liquid-particles .p6 { bottom: 2px; left: 55px; }
+        
+        #liquid-particles .p7 { bottom: 12px; left: 7px; } #liquid-particles .p8 { bottom: 12px; left: 17px; } #liquid-particles .p9 { bottom: 12px; left: 27px; } #liquid-particles .p10 { bottom: 12px; left: 37px; } 
+        #liquid-particles .p11 { bottom: 12px; left: 47px; } #liquid-particles .p12 { bottom: 12px; left: 57px; }
+        
+        /* ۳. گاز (پراکنده در کل ظرف بزرگ) - موقعیت‌های اولیه بدون تغییر */
+        #gas-particles .p1 { top: 10px; left: 20px; } #gas-particles .p2 { top: 90px; left: 40px; } #gas-particles .p3 { top: 50px; left: 80px; }
+        #gas-particles .p4 { top: 100px; left: 100px; } #gas-particles .p5 { top: 30px; left: 140px; } #gas-particles .p6 { top: 70px; left: 180px; }
+        #gas-particles .p7 { top: 20px; left: 220px; } #gas-particles .p8 { top: 95px; left: 240px; } #gas-particles .p9 { top: 40px; left: 280px; }
+        #gas-particles .p10 { top: 60px; left: 300px; } #gas-particles .p11 { top: 80px; left: 30px; } #gas-particles .p12 { top: 10px; left: 100px; }
+
+    </style>
+</head>
+<body>
+    
+    <h1>Design by Maryam Enhessari  طراح مریم انحصاری  شبیه‌سازی حالات فیزیکی ماده</h1>
+    <p>جهت مشاهده حالت فیزیکی ماده و جنبش ذرات، **روی دکمه‌های زیر کلیک کنید**.</p>
+    
+    
+    
+
+    <div class="nav-buttons">
+        <button onclick="showState('solid-state', this)" id="btn-solid" class="active">💎 جامد</button>
+        <button onclick="showState('liquid-state', this)" id="btn-liquid">💧 مایع</button>
+        <button onclick="showState('gas-state', this)" id="btn-gas">🎈 گاز</button>
+    </div>
+
+    <div class="container">
+        <div class="state-box active" id="solid-state">
+            <h2>💎 جامد</h2>
+            <div class="particles" id="solid-particles">
+                <div class="particle p1"></div><div class="particle p2"></div><div class="particle p3"></div><div class="particle p4"></div>
+                <div class="particle p5"></div><div class="particle p6"></div><div class="particle p7"></div><div class="particle p8"></div>
+                <div class="particle p9"></div><div class="particle p10"></div><div class="particle p11"></div><div class="particle p12"></div>
+            </div>
+            <ul class="properties">
+                <li>**جنبش:** فقط **لرزش (ارتعاش)** در جای خود</li>
+                <li>**انرژی ذرات:** **کمترین میزان**</li>
+                <li>**فاصله ذرات:** **بسیار کم**</li>
+                <li>**نظم ذرات:** **بسیار منظم (کریستالی)**</li>
+                <li>**شکل و حجم:** **ثابت و مشخص**</li>
+            </ul>
+        </div>
+
+        <div class="state-box" id="liquid-state">
+            <h2>💧 مایع</h2>
+            <div class="particles" id="liquid-particles">
+                <div class="particle p1" style="--i:1;"></div><div class="particle p2" style="--i:2;"></div><div class="particle p3" style="--i:3;"></div><div class="particle p4" style="--i:4;"></div>
+                <div class="particle p5" style="--i:5;"></div><div class="particle p6" style="--i:6;"></div><div class="particle p7" style="--i:7;"></div><div class="particle p8" style="--i:8;"></div>
+                <div class="particle p9" style="--i:9;"></div><div class="particle p10" style="--i:10;"></div><div class="particle p11" style="--i:11;"></div><div class="particle p12" style="--i:12;"></div>
+            </div>
+            <ul class="properties">
+                <li>**جنبش:** **لغزش** و **حرکت آزادانه** روی هم</li>
+                <li>**انرژی ذرات:** **متوسط**</li>
+                <li>**فاصله ذرات:** **نزدیک اما نامنظم**</li>
+                <li>**شکل:** **متغیر** (شکل ظرف را می‌گیرد)</li>
+                <li>**حجم:** **ثابت**</li>
+            </ul>
+        </div>
+
+        <div class="state-box" id="gas-state">
+            <h2>🎈 گاز</h2>
+            <div class="particles" id="gas-particles">
+                <div class="particle p1"></div><div class="particle p2"></div><div class="particle p3"></div><div class="particle p4"></div>
+                <div class="particle p5"></div><div class="particle p6"></div><div class="particle p7"></div><div class="particle p8"></div>
+                <div class="particle p9"></div><div class="particle p10"></div><div class="particle p11"></div><div class="particle p12"></div>
+            </div>
+            <ul class="properties">
+                <li>**جنبش:** **سریع** و **تصادفی** در تمام جهات</li>
+                <li>**انرژی ذرات:** **بالاترین میزان**</li>
+                <li>**فاصله ذرات:** **بسیار زیاد و پراکنده**</li>
+                <li>**شکل و حجم:** **متغیر** (کل ظرف را پر می‌کند)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 1. تابع جابجایی بین حالت‌ها (ناوبری)
+        function showState(stateId, clickedButton) {
+            const allStates = document.querySelectorAll('.state-box');
+            allStates.forEach(box => {
+                box.classList.remove('active');
+            });
+
+            document.getElementById(stateId).classList.add('active');
+
+            const allButtons = document.querySelectorAll('.nav-buttons button');
+            allButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            clickedButton.classList.add('active');
+        }
+
+        // 2. تابع حرکت تصادفی ذرات گاز
+        function getRandomPosition(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function moveGasParticles() {
+            const gasParticles = document.querySelectorAll('#gas-particles .particle');
+            const container = document.getElementById('gas-particles');
+            
+            const particleSize = 10;
+            const containerWidth = container.clientWidth - particleSize; 
+            const containerHeight = container.clientHeight - particleSize; 
+
+            gasParticles.forEach(particle => {
+                const newX = getRandomPosition(0, containerWidth) + 'px'; 
+                const newY = getRandomPosition(0, containerHeight) + 'px';
+
+                particle.style.left = newX;
+                particle.style.top = newY;
+            });
+
+            setTimeout(moveGasParticles, 1000); 
+        }
+
+        // 3. شروع برنامه
+        window.onload = function() {
+            moveGasParticles(); 
+
+            // فعال کردن حالت جامد در شروع
+            const solidState = document.getElementById('solid-state');
+            if (solidState) {
+                solidState.classList.add('active');
+                document.getElementById('btn-solid').classList.add('active');
+            }
+        };
+    </script>
+    
+</body>
+</html>
